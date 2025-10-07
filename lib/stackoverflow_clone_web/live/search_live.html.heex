@@ -1,0 +1,47 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-orange-500">
+          <span class="font-black">stack</span><span class="font-normal">overflow</span>
+        </h1>
+        <div class="flex-1 max-w-2xl mx-8">
+          <.search_form query={@query} loading={@loading} />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Sidebar - Recent Searches -->
+      <aside class="col-span-12 lg:col-span-3">
+        <.recent_searches_sidebar recent_searches={@recent_searches} />
+      </aside>
+
+      <!-- Main Content -->
+      <main class="col-span-12 lg:col-span-9">
+        <%= if @loading do %>
+          <.loading_state />
+        <% else %>
+          <%= if @error do %>
+            <.error_state error={@error} />
+          <% else %>
+            <%= if @selected_question do %>
+              <.question_display 
+                question={@selected_question}
+                answers={@answers}
+                llm_ranked_answers={@llm_ranked_answers}
+                active_tab={@active_tab}
+                llm_loading={@llm_loading}
+              />
+            <% else %>
+              <.empty_state />
+            <% end %>
+          <% end %>
+        <% end %>
+      </main>
+    </div>
+  </div>
+</div>

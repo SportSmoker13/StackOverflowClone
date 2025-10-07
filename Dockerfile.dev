@@ -1,0 +1,37 @@
+# Dockerfile.dev
+FROM hexpm/elixir:1.15.7-erlang-26.1.2-debian-bookworm-20231009-slim
+
+# Install dependencies
+RUN apt-get update -y && \
+    apt-get install -y \
+    build-essential \
+    git \
+    nodejs \
+    npm \
+    inotify-tools \
+    postgresql-client && \
+    apt-get clean && \
+    rm -f /var/lib/apt/lists/*_*
+
+# Install hex and rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+# Set working directory
+WORKDIR /app
+
+# Install mix dependencies
+COPY mix.exs mix.lock ./
+RUN mix deps.get
+
+# Copy application code
+COPY . .
+
+# Install npm dependencies
+RUN cd assets && npm install
+
+# Expose port
+EXPOSE 4000
+
+# Start development server
+CMD ["mix", "phx.server"]

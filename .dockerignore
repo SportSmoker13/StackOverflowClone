@@ -1,0 +1,46 @@
+# .dockerignore
+# Version control
+.git
+.gitignore
+
+# Dependencies
+deps
+_build
+node_modules
+assets/node_modules
+
+# Build artifacts
+erl_crash.dump
+*.ez
+
+# Development files
+.elixir_ls
+.vscode
+.idea
+
+# Environment files
+.env
+.env.local
+
+# Documentation
+doc
+docs
+
+# Test files
+test
+cover
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+temp

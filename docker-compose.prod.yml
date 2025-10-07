@@ -1,0 +1,94 @@
+# docker-compose.prod.yml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: stackoverflow_clone_prod_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-stackoverflow_clone_prod}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stackoverflow_network
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: stackoverflow_clone_prod_ollama
+    volumes:
+      - ollama_prod_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - stackoverflow_network
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stackoverflow_clone_prod_web
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    environment:
+      MIX_ENV: prod
+      DATABASE_URL: ecto://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db/${DB_NAME:-stackoverflow_clone_prod}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      LLM_BASE_URL: http://ollama:11434
+      LLM_MODEL: ${LLM_MODEL:-llama2}
+      PHX_HOST: ${PHX_HOST:-localhost}
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    networks:
+      - stackoverflow_network
+    restart: unless-stopped
+    command: >
+      sh -c "
+        bin/stackoverflow_clone eval 'StackoverflowClone.Release.migrate' &&
+        bin/stackoverflow_clone start
+      "
+
+  ollama-setup:
+    image: ollama/ollama:latest
+    container_name: stackoverflow_clone_prod_ollama_setup
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    command: >
+      sh -c "
+        sleep 5 &&
+        ollama pull ${LLM_MODEL:-llama2} &&
+        echo 'Model downloaded successfully'
+      "
+    networks:
+      - stackoverflow_network
+    restart: "no"
+
+volumes:
+  postgres_prod_data:
+  ollama_prod_data:
+
+networks:
+  stackoverflow_network:
+    driver: bridge
