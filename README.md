@@ -30,7 +30,7 @@ That's it! Everything else runs in containers.
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/SportSmoker13/StackOverflowClone
 cd stackoverflow_clone
 ```
 
