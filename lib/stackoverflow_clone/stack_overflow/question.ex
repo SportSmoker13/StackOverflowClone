@@ -2,9 +2,6 @@ defmodule StackoverflowClone.StackOverflow.Question do
   use Ecto.Schema
   import Ecto.Changeset
 
-
-
-
   schema "stack_overflow_questions" do
     field :question_id, :integer
     field :title, :string
@@ -31,9 +28,21 @@ defmodule StackoverflowClone.StackOverflow.Question do
   def changeset(question, attrs) do
     question
     |> cast(attrs, [
-      :search_id, :question_id, :title, :body, :tags, :score, :view_count,
-      :answer_count, :is_answered, :creation_date, :last_activity_date,
-      :owner_display_name, :owner_reputation, :link, :api_response_cached_at
+      :search_id,
+      :question_id,
+      :title,
+      :body,
+      :tags,
+      :score,
+      :view_count,
+      :answer_count,
+      :is_answered,
+      :creation_date,
+      :last_activity_date,
+      :owner_display_name,
+      :owner_reputation,
+      :link,
+      :api_response_cached_at
     ])
     |> validate_required([:question_id, :title, :api_response_cached_at])
     |> foreign_key_constraint(:search_id)

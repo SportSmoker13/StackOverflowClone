@@ -1,4 +1,3 @@
-# lib/stackoverflow_clone/clients/stack_overflow_client.ex
 defmodule StackoverflowClone.Clients.StackOverflowClient do
   @moduledoc """
   Client for interacting with Stack Exchange API.
@@ -23,11 +22,13 @@ defmodule StackoverflowClone.Clients.StackOverflowClient do
     page_size = Keyword.get(opts, :page_size, 5)
     order = Keyword.get(opts, :order, "desc")
     sort = Keyword.get(opts, :sort, "relevance")
+    max_results = Keyword.get(opts, :max_results, 3)
 
     params = %{
       order: order,
       sort: sort,
-      intitle: query_text,
+      # Changed from 'intitle' to 'q' for broader search
+      q: query_text,
       site: @site,
       pagesize: page_size,
       filter: @custom_filter,
@@ -39,11 +40,12 @@ defmodule StackoverflowClone.Clients.StackOverflowClient do
 
     case make_request(:get, url, params) do
       {:ok, response} ->
-        # Fetch answers for each question
+        # Fetch answers for questions with answers
         questions_with_answers =
           response["items"]
           |> Enum.filter(fn q -> q["answer_count"] > 0 end)
-          |> Enum.take(1) # Take first question with answers
+          # Now configurable, defaults to 3
+          |> Enum.take(max_results)
           |> Enum.map(&fetch_answers_for_question/1)
           |> Enum.filter(&(&1 != nil))
 
@@ -128,9 +130,8 @@ defmodule StackoverflowClone.Clients.StackOverflowClient do
 
     Logger.info("Stack Overflow API Request: #{method} #{full_url}")
 
-    case HTTPoison.request(method, full_url, "", headers, timeout: 30_000, recv_timeout: 30_000)|> IO.inspect do
+    case HTTPoison.request(method, full_url, "", headers, timeout: 30_000, recv_timeout: 30_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-
         case :zlib.gunzip(body) |> Jason.decode() do
           {:ok, decoded} ->
             log_quota(decoded)

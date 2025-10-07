@@ -19,6 +19,4 @@ defmodule StackoverflowClone.Repo.Migrations.CreateLlmRankings do
     create unique_index(:llm_rankings, [:search_id, :answer_id])
     create index(:llm_rankings, [:search_id, :llm_rank])
   end
-
-
 end

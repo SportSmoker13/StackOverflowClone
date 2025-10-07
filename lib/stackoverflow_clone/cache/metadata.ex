@@ -2,9 +2,6 @@ defmodule StackoverflowClone.Cache.Metadata do
   use Ecto.Schema
   import Ecto.Changeset
 
-
-
-
   schema "cache_metadata" do
     field :cache_key, :string
     field :cache_type, :string
@@ -20,8 +17,12 @@ defmodule StackoverflowClone.Cache.Metadata do
   def changeset(metadata, attrs) do
     metadata
     |> cast(attrs, [
-      :cache_key, :cache_type, :last_fetched_at, :expires_at,
-      :api_quota_remaining, :metadata
+      :cache_key,
+      :cache_type,
+      :last_fetched_at,
+      :expires_at,
+      :api_quota_remaining,
+      :metadata
     ])
     |> validate_required([:cache_key, :cache_type, :last_fetched_at])
     |> unique_constraint([:cache_key, :cache_type])

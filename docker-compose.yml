@@ -1,27 +1,24 @@
-# docker-compose.yml
 version: '3.8'
 
 services:
   # PostgreSQL Database
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: stackoverflow_clone_db
-  #   environment:
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #     POSTGRES_DB: stackoverflow_clone_dev
-  #     PGDATA: /var/lib/postgresql/data/pgdata
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - stackoverflow_network
+  db:
+    image: postgres:16-alpine
+    container_name: stackoverflow_clone_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: stackoverflow_clone_dev
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Ollama LLM Service
   ollama:
@@ -31,60 +28,33 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    command: ["serve"]
-    networks:
-      - stackoverflow_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
-  # Phoenix Application (Development)
-  # web:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   container_name: stackoverflow_clone_web
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #     ollama:
-  #       condition: service_healthy
-  #   environment:
-  #     MIX_ENV: dev
-  #     DB_USER: postgres
-  #     DB_PASSWORD: postgres
-  #     DB_HOST: db
-  #     DB_NAME: stackoverflow_clone_dev
-  #     LLM_BASE_URL: http://ollama:11434
-  #     LLM_MODEL: llama2
-  #     SECRET_KEY_BASE: "your-dev-secret-key-base-at-least-64-characters-long-change-this"
-  #   ports:
-  #     - "4000:4000"
-  #   volumes:
-  #     - .:/app
-  #     - build_cache:/app/_build
-  #     - deps_cache:/app/deps
-  #     - node_modules:/app/assets/node_modules
-  #   stdin_open: true
-  #   tty: true
-  #   command: >
-  #     sh -c "
-  #       mix deps.get &&
-  #       mix ecto.create &&
-  #       mix ecto.migrate &&
-  #       cd assets && npm install && cd .. &&
-  #       mix phx.server
-  #     "
-  #   networks:
-  #     - stackoverflow_network
-
-  # Ollama Model Downloader (runs once to pull model)
+  # Ollama Model Downloader
   ollama-setup:
     image: ollama/ollama:latest
     container_name: stackoverflow_clone_ollama_setup
     depends_on:
-      - ollama
-    command: ["pull", "llama2"]
-    networks:
-      - stackoverflow_network
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Waiting for Ollama server..."
+        sleep 5
+        echo "Pulling llama2 model..."
+        ollama pull llama2
+        echo "Model pull complete!"
+    environment:
+      - OLLAMA_HOST=ollama:11434
     restart: "no"
 
 volumes:
@@ -92,14 +62,3 @@ volumes:
     name: stackoverflow_clone_postgres_data
   ollama_data:
     name: stackoverflow_clone_ollama_data
-  build_cache:
-    name: stackoverflow_clone_build_cache
-  deps_cache:
-    name: stackoverflow_clone_deps_cache
-  node_modules:
-    name: stackoverflow_clone_node_modules
-
-networks:
-  stackoverflow_network:
-    name: stackoverflow_clone_network
-    driver: bridge

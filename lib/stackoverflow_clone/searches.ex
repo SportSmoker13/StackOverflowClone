@@ -40,7 +40,7 @@ defmodule StackoverflowClone.Searches do
   """
   def get_recent_searches(session_id: session_id) when not is_nil(session_id) do
     Search
-    |> where([s], s.session_id == ^session_id)
+    # |> where([s], s.session_id == ^session_id)
     |> order_by([s], desc: s.search_timestamp)
     |> limit(5)
     |> Repo.all()
@@ -66,7 +66,7 @@ defmodule StackoverflowClone.Searches do
 
     Search
     |> where([s], s.query_text == ^query_text)
-    |> where([s], s.session_id == ^session_id)
+    # |> where([s], s.session_id == ^session_id)
     |> where([s], s.search_timestamp > ^cache_threshold)
     |> order_by([s], desc: s.search_timestamp)
     |> limit(1)

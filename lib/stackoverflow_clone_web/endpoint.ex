@@ -12,8 +12,7 @@ defmodule StackoverflowCloneWeb.Endpoint do
     same_site: "Lax"
   ]
 
-  socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
 

@@ -18,7 +18,10 @@ defmodule StackoverflowClone.Clients.LLMClient do
         parse_ranking_response(llm_response, answers, model)
 
       {:error, {:request_failed, :econnrefused}} when retry_count < @max_retries ->
-        Logger.warning("LLM connection refused, retrying in #{@retry_delay}ms (attempt #{retry_count + 1}/#{@max_retries})")
+        Logger.warning(
+          "LLM connection refused, retrying in #{@retry_delay}ms (attempt #{retry_count + 1}/#{@max_retries})"
+        )
+
         Process.sleep(@retry_delay)
         rank_answers(question, answers, retry_count + 1)
 
@@ -82,7 +85,8 @@ defmodule StackoverflowClone.Clients.LLMClient do
       messages: [
         %{
           role: "system",
-          content: "You are a helpful assistant that analyzes Stack Overflow answers and returns structured JSON responses."
+          content:
+            "You are a helpful assistant that analyzes Stack Overflow answers and returns structured JSON responses."
         },
         %{
           role: "user",
@@ -96,7 +100,10 @@ defmodule StackoverflowClone.Clients.LLMClient do
 
     Logger.info("Calling LLM API: #{url} with model: #{model}")
 
-    case HTTPoison.post(url, Jason.encode!(body), headers, timeout: 120_000, recv_timeout: 120_000) do
+    case HTTPoison.post(url, Jason.encode!(body), headers,
+           timeout: 120_000,
+           recv_timeout: 120_000
+         ) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         case Jason.decode(response_body) do
           {:ok, decoded} ->

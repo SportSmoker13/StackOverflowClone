@@ -2,9 +2,6 @@ defmodule StackoverflowClone.StackOverflow.Answer do
   use Ecto.Schema
   import Ecto.Changeset
 
-
-
-
   schema "answers" do
     field :answer_id, :integer
     field :body, :string
@@ -26,9 +23,16 @@ defmodule StackoverflowClone.StackOverflow.Answer do
   def changeset(answer, attrs) do
     answer
     |> cast(attrs, [
-      :question_id, :answer_id, :body, :score, :is_accepted,
-      :creation_date, :last_activity_date, :owner_display_name,
-      :owner_reputation, :original_rank
+      :question_id,
+      :answer_id,
+      :body,
+      :score,
+      :is_accepted,
+      :creation_date,
+      :last_activity_date,
+      :owner_display_name,
+      :owner_reputation,
+      :original_rank
     ])
     |> validate_required([:answer_id, :body, :original_rank])
     |> foreign_key_constraint(:question_id)

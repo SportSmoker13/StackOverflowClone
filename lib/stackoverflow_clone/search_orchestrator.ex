@@ -20,7 +20,7 @@ defmodule StackoverflowClone.SearchOrchestrator do
   """
   def perform_search(query_text, session_id, user_fingerprint) do
     # 1. Check if we have a recent cached search
-    case Searches.find_cached_search(query_text, session_id) do
+    case Searches.find_cached_search(query_text, session_id) |> IO.inspect() do
       %Search{} = cached_search ->
         Logger.info("Using cached search for: #{query_text}")
         {:ok, cached_search}
@@ -63,7 +63,7 @@ defmodule StackoverflowClone.SearchOrchestrator do
       Logger.info("Stack Overflow API cache valid")
     end
 
-    case StackOverflowClient.search_questions(query_text)  do
+    case StackOverflowClient.search_questions(query_text) do
       {:ok, response} ->
         # Update cache metadata
         Cache.create_metadata(%{
@@ -74,6 +74,7 @@ defmodule StackoverflowClone.SearchOrchestrator do
           api_quota_remaining: response["quota_remaining"],
           metadata: %{"has_more" => response["has_more"]}
         })
+        |> IO.inspect()
 
         {:ok, response}
 

@@ -58,7 +58,7 @@ defmodule StackoverflowClone.LLM do
     from(r in Ranking,
       join: a in Answer,
       on: a.id == r.answer_id,
-      where: r.search_id == ^search_id and  a.question_id == ^question_id,
+      where: r.search_id == ^search_id and a.question_id == ^question_id,
       order_by: [asc: r.llm_rank],
       select: %{
         answer: a,

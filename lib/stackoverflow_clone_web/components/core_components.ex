@@ -52,7 +52,7 @@ defmodule StackoverflowCloneWeb.CoreComponents do
 
     ~H"""
     <div
-    :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
+      :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
@@ -347,12 +347,12 @@ defmodule StackoverflowCloneWeb.CoreComponents do
             phx-click={@row_click && @row_click.(row)}
             class={@row_click && "hover:cursor-pointer"}
           >
-          <%= render_slot(col, @row_item.(row)) %>
+            <%= render_slot(col, @row_item.(row)) %>
           </td>
           <td :if={@action != []} class="w-0 font-semibold">
             <div class="flex gap-4">
               <%= for action <- @action do %>
-              <%= render_slot(action, @row_item.(row)) %>
+                <%= render_slot(action, @row_item.(row)) %>
               <% end %>
             </div>
           </td>

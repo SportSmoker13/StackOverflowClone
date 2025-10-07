@@ -26,6 +26,4 @@ defmodule StackoverflowClone.Repo.Migrations.CreateStackOverflowQuestions do
     create index(:stack_overflow_questions, [:search_id])
     create index(:stack_overflow_questions, [:api_response_cached_at])
   end
-
-
 end

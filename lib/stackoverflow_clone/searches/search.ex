@@ -2,9 +2,6 @@ defmodule StackoverflowClone.Searches.Search do
   use Ecto.Schema
   import Ecto.Changeset
 
-
-
-
   schema "searches" do
     field :query_text, :string
     field :session_id, :string
@@ -23,5 +20,4 @@ defmodule StackoverflowClone.Searches.Search do
     |> cast(attrs, [:query_text, :session_id, :user_fingerprint, :search_timestamp])
     |> validate_required([:query_text])
   end
-
 end

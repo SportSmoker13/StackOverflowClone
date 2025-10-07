@@ -2,9 +2,6 @@ defmodule StackoverflowClone.LLM.Ranking do
   use Ecto.Schema
   import Ecto.Changeset
 
-
-
-
   schema "llm_rankings" do
     field :llm_rank, :integer
     field :llm_confidence_score, :float
@@ -22,8 +19,13 @@ defmodule StackoverflowClone.LLM.Ranking do
   def changeset(ranking, attrs) do
     ranking
     |> cast(attrs, [
-      :search_id, :answer_id, :llm_rank, :llm_confidence_score,
-      :llm_reasoning, :llm_model_used, :processed_at
+      :search_id,
+      :answer_id,
+      :llm_rank,
+      :llm_confidence_score,
+      :llm_reasoning,
+      :llm_model_used,
+      :processed_at
     ])
     |> validate_required([:llm_rank, :llm_model_used, :processed_at])
     |> foreign_key_constraint(:search_id)
